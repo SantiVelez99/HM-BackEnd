@@ -6,5 +6,6 @@ const upload = multer()
 router.get("/users", userController.getUsers)
 router.get('/users/:id', userController.getUserByID)
 router.post('/users', upload.none(), userController.postUser)
+router.put('/users/:id', upload.none(), userController.editUser)
 
 module.exports = router

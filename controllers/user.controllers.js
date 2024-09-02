@@ -68,6 +68,30 @@ async function postUser(req, res){
     }
 }
 
+async function editUser(req, res){
+    try {
+        const id = req.params.id
+        const updtUser = req.body
+        delete updtUser.role
+        delete updtUser.password
+        const updatedUser = await User.findByIdAndUpdate(id, updtUser, { new: true})
+        if(!updatedUser){
+            return res.status(404).send({
+                message: "Failed to update. User not found"
+            })
+        }
+        res.status(200).send({
+            message: "User updated correctly",
+            updatedUser
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({
+            message: "Failed to edit the user"
+        })
+    }
+}
+
 module.exports = { 
-    getUsers, getUserByID, postUser
+    getUsers, getUserByID, postUser, editUser
 }
