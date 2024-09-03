@@ -1,8 +1,8 @@
 const User = require('../models/user.model')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
-// const jwt = require('jsonwebtoken')
-// const secret = process.env.SECRET
+const jwt = require('jsonwebtoken')
+const secret = process.env.SECRET
 
 async function getUsers(req, res){
     try {
@@ -92,6 +92,64 @@ async function editUser(req, res){
     }
 }
 
+async function deleteUser(req, res){
+    try {
+        const id = req.params.id
+        const deletedUser = await User.findByIdAndDelete(id)
+        if(!deletedUser){
+            return res.status(404).send({
+                message: "Failed to delete. User not found"
+            })
+        }
+        res.status(200).send({
+            message: "User deleted successfully",
+            deletedUser
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({
+            message: "Failed to delete the user"
+        })
+    }
+}
+
+async function logIn(req, res){
+    try {
+        const email = req.body.email
+        const password = req.body.password
+
+        if(!email || !password){
+            return res.status(404).send({
+                message: "Failed to logIn, email and password are required"
+            })
+        }
+        const user = await User.findOne({ email: { $regex: email, $options: "i" } })
+        if(!user){
+            return res.status(404).send({
+                message: "Mismatching data"
+            })
+        }
+        const match = await bcrypt.compare(password, user.password)
+        if(!match){
+            return res.status(404).send({
+                message: "Mismatching data"
+            })
+        }
+        delete user.password
+        const token = jwt.sing(user.toJSON(), secret, { expiresIn: '24H' })
+        res.status(200).send({
+            message: `Welcome ${user.name}`,
+            user,
+            token
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({
+            message: "Failed to logIn"
+        })
+    }
+}
+
 module.exports = { 
-    getUsers, getUserByID, postUser, editUser
+    getUsers, getUserByID, postUser, editUser, deleteUser, logIn
 }
