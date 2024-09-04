@@ -136,7 +136,7 @@ async function logIn(req, res){
             })
         }
         delete user.password
-        const token = jwt.sing(user.toJSON(), secret, { expiresIn: '24H' })
+        const token = jwt.sign(user.toJSON(), secret, { expiresIn: '24H' })
         res.status(200).send({
             message: `Welcome ${user.name}`,
             user,
