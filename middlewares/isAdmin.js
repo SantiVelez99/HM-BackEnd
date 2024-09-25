@@ -1,5 +1,5 @@
 function isAdmin(req, res, next){
-    if(req.user.userRole === "ADMIN_ROLE"){
+    if(req.user.role === "ADMIN_ROLE"){
         next();
     } else {
         res.status(401).send({
